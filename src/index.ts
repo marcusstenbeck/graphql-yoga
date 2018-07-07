@@ -39,6 +39,7 @@ import {
 } from './types'
 import { ITypeDefinitions } from 'graphql-tools/dist/Interfaces'
 import { defaultErrorFormatter } from './defaultErrorFormatter'
+import { ListenOptions } from 'net'
 
 export { MockList } from 'graphql-tools'
 export { PubSub, withFilter } from 'graphql-subscriptions'
@@ -65,6 +66,7 @@ export class GraphQLServer {
   options: Options = {
     tracing: { mode: 'http-header' },
     port: process.env.PORT || 4000,
+    host: process.env.HOST || 'localhost',
     deduplicator: true,
     endpoint: '/',
     subscriptions: '/',
@@ -362,7 +364,11 @@ export class GraphQLServer {
 
     return new Promise((resolve, reject) => {
       const combinedServer = server
-      combinedServer.listen(this.options.port, () => {
+      const listenOptions: ListenOptions = {
+        port: Number(this.options.port),
+        host: this.options.host,
+      }
+      combinedServer.listen(listenOptions, () => {
         callbackFunc({
           ...this.options,
           port: combinedServer.address().port,
